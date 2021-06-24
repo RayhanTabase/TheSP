@@ -1,0 +1,109 @@
+{% extends 'theSP/layout.html' %}
+{% load static %}
+
+{% block title %} {{business.name}} {% endblock title %}
+
+{% block body %}  
+{% include 'business/layout.html' %}
+
+<div class="container">
+    {% if display == "form" %}
+    <div id="form" style="display:block">
+    {% else %}
+    <div id="form" style="display:none">
+    {% endif %}
+        {% if "creator_access" in permissions %}
+            {% if error_messages %}
+                {% for error in error_messages %}
+                    <div class="error_message"><h2 class="text-danger text-center">{{error}}</h2></div>
+                {% endfor %}
+            {% endif %}
+            <div class="container-center-column">
+                <div class="form-box-large" style="z-index:30">
+                    <h2>Edit Business</h2>
+                    <form action="{% url 'business:business_admin' business_name=business.name page='profile' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% for instance in form %}
+                            {% if instance == form.logo %}
+                            <p>
+                                <label for="logo">Change Logo</label>
+                                {{instance}}
+                            </p>
+                            {% else %}
+                                <p>
+                                    {{instance.label}}
+                                    {{instance}}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                        <input class="btn btn-primary" type="submit">
+                    </form>
+                </div>
+                <button class="btn btn-danger btn-lg lone-btn" id="close_form">Close</button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<div class="container">
+    {% if display == "form" %}
+    <div id="body" style="display:none"> 
+    {% else %}
+     <div id="body" style="display:block"> 
+    {% endif %}
+        <h1 class="text-center" style="margin-top: 2em; color: cornflowerblue;">Welcome {{request.user.first_name}} {{request.user.last_name}}</h1>
+        <div class="container-center-column profile">
+            <div class="image" >    
+                {% if business.logo %}
+                    <img name="profile_picture" class="rounded-circle" src="{{business.logo.url}}" alt="profile picture">
+                {% endif %}
+            </div>
+            <div class="name">
+                <h4>Name: {{business.name}}</h4>
+            </div>
+            <div>
+                <h4>Phone: +{{business.country_code}}-{{business.phone}}</h4>
+            </div>
+            <div>
+                <h4>Email: {{business.email}}</h4>
+            </div>
+            <div>
+                <h4 style="text-transform:capitalize">Description: {{business.description}}</h4>
+            </div>
+            <div>
+                <h4 style="text-transform:capitalize">Location: {{business.location}}</h4>
+            </div>
+            {% if "creator_access" in permissions %}
+                <div class="edit">
+                    <button class="btn btn-primary btn-lg lone-btn" id="open_form">Edit Profile</button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+  
+<script>
+    const open_form_button = document.getElementById("open_form")
+    const close_form_button = document.getElementById("close_form")
+    const form = document.getElementById("form")
+    const body = document.getElementById("body")
+
+    open_form_button.addEventListener('click', ()=> show_section("form"))
+    close_form_button.addEventListener('click', ()=> show_section("body"))
+
+    function show_section(section){
+        if(section === "form"){
+            body.style.display = 'none'
+            form.style.display = 'block'
+        }
+        else if(section === "body"){
+            if(document.querySelector(".error_message")){
+                window.location.href = window.location.href
+            }else{
+                body.style.display = 'block'
+                form.style.display = 'none'
+            }
+        }
+    }
+</script>
+    
+{% endblock body %}

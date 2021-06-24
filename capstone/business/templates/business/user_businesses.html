@@ -1,0 +1,156 @@
+{% extends 'theSP/layout.html' %}
+{% load static %}
+
+{% block title %} Businesses Affiliated {% endblock title%}
+
+{% block body %}
+{% include 'theSP/gen_nav.html' %}
+
+    <div class='container'>
+        {% if display == "form" %}
+            <div id="form" style="display:block">
+        {% else %}
+            <div id="form" style="display:none">
+        {% endif %}
+                {% if error_messages %}
+                    {% for error in error_messages %}
+                        <div class="error_message"><h2 class="text-danger text-center">{{error}}</h2></div>
+                    {% endfor %}
+                {% endif %}
+                <div class="container-center-column">
+                    <div class="form-box-large" style="z-index:30">
+                        <h2>New Business</h2>
+                        <form action="{% url 'business:user_businesses' %}" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{form.as_p}}
+                            <input class="btn btn-primary" type="submit">
+                        </form>
+                    </div>
+                    <button class="btn btn-danger btn-lg lone-btn" id="close_form">Close</button>
+                </div>
+            </div>
+    </div>
+
+    <div class="container-fluid">
+        {% if display == "form" %}
+            <div id="body" style="display:none"> 
+        {% else %}
+            <div id="body" style="display:block"> 
+        {% endif %}
+        <div id="body" style="text-transform: capitalize;">   
+            <div class="container-center-column lone-btn" >
+                <button class="btn btn-primary btn-lg" id="open_form">Add New Business</button>
+            </div>
+
+            <div class="row container-center-row" style="margin-bottom: 4em;">
+                <button class="col-md-4 btn btn-lg btn-page-view btn-info" id="show_created_button">Created</button>
+                <button class="col-md-4 btn btn-lg btn-page-view" id="show_employed_button">Employed</button>  
+            </div> 
+            
+            <div class="container-center-column">
+                <div id="owned_section">
+                    {% if not request.user.business_set.all %}
+                        <div> 
+                            <h2>No business</h2>
+                        </div>
+                    {% endif %}
+                    {% for business in request.user.business_set.all %}
+                        <div class="index-business">
+                            <a href="{{business.get_admin_url}}">    
+                                <div class="business-card">
+                                    <div class="business-logo">
+                                        {% if business.logo %}
+                                        <img src={{business.logo.url}} alt="{{business.name}}-logo">
+                                        {% else %}
+                                        no logo
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="business-name">
+                                        <h2>{{business.name}}</h2>   
+                                    </div>
+                                </div>  
+                            </a>   
+                        </div>  
+                    {% endfor %}
+                </div>
+
+                <div id="employed_section"  style="display:none">
+                    {% if not request.user.employed.all %}
+                        <div> 
+                            <h2>No business</h2>
+                        </div>
+                    {% endif %}
+                    {% for instance in request.user.employed.all %}
+                        {% with instance.business as business %}
+                            {% if not business.creator == request.user %}
+                                <div class="index-business">
+                                    <a href="{{business.get_admin_url}}">    
+                                        <div class="business-card">
+                                            <div class="business-logo">
+                                                {% if business.logo %}
+                                                <img src={{business.logo.url}} alt="{{business.name}}-logo">
+                                                {% else %}
+                                                no logo
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <div class="business-name">
+                                                <h2>{{business.name}}</h2>   
+                                            </div>
+                                        </div>  
+                                    </a>   
+                                </div>
+                            {% endif %}   
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const open_form_button = document.getElementById("open_form")
+        const close_form_button = document.getElementById("close_form")
+        const form = document.getElementById("form")
+        const body = document.getElementById("body")
+
+        const show_created_button = document.querySelector('#show_created_button')
+        const show_employed_button = document.querySelector('#show_employed_button')
+        const created = document.querySelector('#owned_section')
+        const employed = document.querySelector('#employed_section')
+
+        show_created_button.addEventListener('click', ()=> show_section("owned"))
+        show_employed_button.addEventListener('click', ()=> show_section("employed"))
+        open_form_button.addEventListener('click', ()=> show_section("form"))
+        close_form_button.addEventListener('click', ()=> show_section("body"))
+
+        function show_section(section){
+            if(section === "owned"){
+                show_created_button.classList.add("btn-info")
+                show_employed_button.classList.remove("btn-info")
+                created.style.display = 'block'
+                employed.style.display = 'none'
+            }
+            else if(section === "employed"){
+                show_employed_button.classList.add("btn-info")
+                show_created_button.classList.remove("btn-info")
+                created.style.display = 'none'
+                employed.style.display = 'block'
+            }
+            else if(section === "form"){
+                body.style.display = 'none'
+                form.style.display = 'block'
+            }
+            else if(section === "body"){
+                if(document.querySelector(".error_message")){
+                    window.location.href = window.location.href
+                }else{
+                    body.style.display = 'block'
+                    form.style.display = 'none'   
+                }
+            }
+        }
+    </script>  
+{% endblock body %}
+

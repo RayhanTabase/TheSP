@@ -1,0 +1,72 @@
+
+<div id="user-hello">
+    <h1>Messages Response Only Admin</h1>
+</div>
+
+    <div id="chat_groups">
+
+    </div><br>
+
+<script>
+
+    const chatSocket = new WebSocket(
+        'ws://' +
+        window.location.host +
+        '/ws/admin/' +
+        'chat/' +
+        '{{business_id}}' +
+        '/'
+    );
+
+    chatSocket.onmessage = function(e){
+        const data = JSON.parse(e.data);
+        console.log(data)
+        let main_div = document.querySelector('#chat_groups') 
+
+        if(data.create_div){
+            let room_name = data.create_div 
+            var chat_box = document.createElement("div");
+            chat_box.id = room_name
+           
+            var text_area = document.createElement("textarea")
+            text_area.cols = 30
+            text_area.rows = 10
+            text_area.id = room_name+"_text"
+            chat_box.appendChild(text_area)
+
+            var input = document.createElement("input")
+            input.id = room_name+"_input"
+            chat_box.appendChild(input)
+
+            var submit_btn = document.createElement("input")
+            submit_btn.type = "submit"
+
+            submit_btn.addEventListener("click",function(e){
+                console.log("send message")
+                const messageInputDom = input
+                const message = messageInputDom.value;
+                
+                chatSocket.send(JSON.stringify({
+                    'message':message,
+                    'username':'{{request.user.username}}',
+                    'room_name':room_name
+                }));
+
+                messageInputDom.value = "";
+            })
+
+            chat_box.appendChild(submit_btn)
+            chat_box.append(`${room_name}`)
+
+
+            main_div.appendChild(chat_box)
+                     
+        }
+        if(data.message){
+            room_name = data.room_name
+            query = room_name+"_text"
+            document.querySelector(`#${query}`).value += `${(data.username)} : ${(data.message)}\n\n`
+        }   
+    }
+
+</script>

@@ -1,0 +1,138 @@
+{% extends 'theSP/layout.html' %}
+{% load static %}
+
+{% block title %} {{business.name}} {% endblock title %}
+
+{% block body %}  
+{% include 'business/layout.html' %}
+    <div class="text-center">
+        Created: <p>{{invoice.sales_agent_name}} on {{invoice.timestamp}}</p>
+    </div>
+
+    <div class="container-center-row lone-btn">
+        <form action="{% url 'invoice:manage_invoice' business_name=business.name invoice_id=invoice.id %}">
+            <input id="csv-extract" name="extract_csv" value=1 hidden>
+            <button class="btn btn-info" id="extract_data_csv">Extract to excel</button>
+        </form>
+    </div>
+    
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">Units</th>
+                <th scope="col">Total</th>
+            </tr>
+        </thead>
+        {% for item in invoice.items.all %}
+            <tbody>
+                <tr>
+                    <th scope="col">{{item.inventory_name}}</th>
+                    <td scope="col">{{item.inventory.price}}</td>
+                    <td scope="col">{{item.quantity}}</td>
+                    <td scope="col">{{item.total}}</td>
+                </tr>
+            </tbody>
+        {% endfor %}
+    </table><br/><br/>
+
+    <div class="text-center" style="text-transform: capitalize;">
+        <h2>To: {{invoice.customer_name}} (+{{invoice.customer_contact}})</h2>
+    </div><br/><br/>
+    <div class="text-center">
+        <h3>Discount = {{invoice.invoice_discount}}</h3>
+    </div><br/><br/>
+    <div class="text-center" style="width: 100%; border-bottom: 4px double black;">
+         <h2 >TOTAL = {{invoice.total_cost}} </h2>
+    </div><br/><br/>
+
+    <div id="payment_status">
+        {% if invoice.paid %}
+        <div id="invoice-paid-stamp">
+            <p>Paid</p>
+        </div>
+        {% else %} 
+        <div class="container-center-row">
+            <button id="pay_invoice" class="btn btn-success">Mark as paid</button>
+        </div><br/><br/>
+        <div class="container-center-row">
+            <button id="delete_invoice" class="btn btn-danger">Delete Invoice</button>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        } 
+        
+        const business_name ="{{business.name}}";
+        const invoice_id = "{{invoice.id}}";
+        const HOST = "http://127.0.0.1:8000"
+        const pay_invoice_btn = document.querySelector('#pay_invoice')
+        const delete_invoice_btn = document.querySelector('#delete_invoice')
+
+        if (pay_invoice_btn){
+            pay_invoice_btn.addEventListener("click",function(){
+                console.log("pay invoice")
+                if (confirm('Are you sure you want to save as paid?')) {
+                // Save it!
+                    console.log('saved as paid');
+                    fetch(`${HOST}/business/${business_name}/manage_invoice/${invoice_id}/`,{
+                        method:'POST',
+                        headers: {
+                            "X-CSRFToken": getCookie("csrftoken")
+                        },
+                    })
+                    .then(response=>{
+                        if(response.status == 200){
+                            pay_invoice_btn.remove()
+                            delete_invoice_btn.remove()
+                            document.querySelector("#payment_status").innerHTML = "<div id='invoice-paid-stamp'> <p>Paid</p> </div>"
+                        }
+                    })
+                } else {
+                // Do nothing!
+                    console.log('save cancelled');
+                }
+            })
+        }
+        
+        if(delete_invoice_btn){
+            delete_invoice_btn.addEventListener("click",function(){
+                console.log("delete invoice")
+                if (confirm('Are you sure you want to delete invoice?')) {
+                // Delete it!
+                    console.log('Deleted Invoice');
+                    fetch(`${HOST}/business/${business_name}/manage_invoice/${invoice_id}/`,{
+                        method:'DELETE',
+                        headers: {
+                            "X-CSRFToken": getCookie("csrftoken")
+                        },
+                    })
+                    .then(response=>{
+                        if(response.status == 200){
+                            window.location.assign(`${HOST}/business/${business_name}/index_invoices/`)
+                        }
+                    })
+                } else {
+                // Do nothing!
+                    console.log('Delete cancelled');
+                }
+            })
+        }
+    </script>
+{% endblock body %}

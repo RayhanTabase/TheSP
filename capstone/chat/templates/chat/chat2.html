@@ -1,0 +1,58 @@
+
+<div id="user-hello">
+    <h1>Messages</h1>
+</div>
+    <div id="saved_messages">
+        
+    </div>
+
+    <textarea id="chat_text" cols="50" rows="20">
+
+    </textarea><br>
+    
+    <input id="input" type="text" size="80"><br>
+    <input id="submit" type="submit" value="Send">
+
+
+<!-- {{ room_name|json_script:"room-name" }} -->
+<script>
+
+    document.querySelector("#submit").addEventListener('click', function(e){
+        console.log("send message")
+        const messageInputDom = document.querySelector("#input");
+        const message = messageInputDom.value;
+        
+        chatSocket.send(JSON.stringify({
+            'message':message,
+            'username':'{{request.user.username}}',
+            'user_created':true
+        }));
+
+        messageInputDom.value = "";
+    })
+
+    const chatSocket = new WebSocket(
+        'ws://' +
+        window.location.host +
+        '/ws/chat/' +
+        '{{business.id}}' +
+        '/' +
+        '{{request.user.username}}' +
+        '/'
+    );
+
+    chatSocket.onmessage = function(e){
+        const data = JSON.parse(e.data);
+        if(data.message){
+            if(data.user_created){
+                document.querySelector('#chat_text').value += `${(data.username)} : ${(data.message)}\n\n`
+            }else{
+                document.querySelector('#chat_text').value += `///{{business.name}} : ${(data.message)}\n\n`
+            }
+        }   
+        else{
+            console.log(data)
+        }
+    }
+    
+</script>

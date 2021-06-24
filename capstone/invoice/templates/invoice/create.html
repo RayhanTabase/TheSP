@@ -1,0 +1,17 @@
+
+{% extends 'theSP/layout.html' %}
+{% load static %}
+
+{% block title %}Invoice - {{business.name}} {% endblock title %}
+{% block script %}
+    <script> const business_name = "{{business.name}}" </script>
+    <script type="text/babel" src="{% static 'invoice/js/salesInvoice.js' %}"></script>
+{% endblock script %}
+
+{% block body %}  
+{% include 'business/layout.html' %}
+       
+    <div id="body">    
+    </div>
+     
+{% endblock body %}

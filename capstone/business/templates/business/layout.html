@@ -1,0 +1,64 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="z-index: 100;">
+    <a class="navbar-brand" href="{% url 'inventory:index' %}">THE SP</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarLayout" aria-controls="navbarLayout" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarLayout">
+        <ul class="navbar-nav mr-auto">
+            {% if not request.user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user:login' %}">Login</a>
+                </li>
+            {% else %}
+                <li {% if page == "profile" %} class="nav-iten active" {% else %} class="nav-item" {% endif %}>
+                    <a class="nav-link" href="{% url 'business:business_admin' business_name=business.name  page='profile' %}">
+                        Business Profile
+                    </a>
+                </li>
+                {% if "make sales" in permissions or "creator_access" in permissions %}
+                    <li {% if page == "sales" %} class="nav-iten active" {% else %} class="nav-item" {% endif %}>
+                        <a class="nav-link"  href="{% url 'invoice:create' business_name=business.name %}">
+                            Make Sale
+                        </a>   
+                    </li>
+                {% endif %}
+                
+                {% if "manage inventory" in permissions or "creator_access" in permissions %}
+                <li {% if page == "inventory" %} class="nav-iten active" {% else %} class="nav-item" {% endif %}>
+                    <a class="nav-link" href="{% url 'inventory:inventory_management' business_name=business.name %}">
+                        Manage Inventory
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% if "manage employees" in permissions or "creator_access" in permissions %}
+                <li {% if page == "employee_management" %} class="nav-iten active" {% else %} class="nav-item" {% endif %}>
+                    <a class="nav-link"  href="{% url 'business:business_admin' business_name=business.name page='employee_management' %}">
+                        Manage Employees
+                    </a> 
+                </li>
+                {% endif %}
+                
+                {% if "manage accounts" in permissions or "creator_access" in permissions %}
+                <li {% if page == "invoices" %} class="nav-iten active" {% else %} class="nav-item" {% endif %}>
+                    <a class="nav-link" href="{% url 'invoice:invoices_index' business_name=business.name %}">
+                        Invoices
+                    </a>   
+                </li>
+                {% endif %}
+
+                <li {% if page == "chat" %} class="nav-iten active" {% else %} class="nav-item" {% endif %}>
+                    <a class="nav-link" href="{% url 'chat:admin_chat' business_name=business.name %}">
+                        Chats
+                    </a>   
+                </li>
+
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+{% if not page == "profile" %}
+    <div class="container-center-row name_tag"> 
+        <p>Signed In As: {{request.user.first_name}} {{request.user.last_name}} </p>
+    </div>
+{% endif %}

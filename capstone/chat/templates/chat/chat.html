@@ -1,0 +1,27 @@
+
+{% extends 'theSP/layout.html' %}
+{% load static %}
+{% block title %} Admin Chat {% endblock title %}
+
+{% block script %}
+    <script> 
+        const business_id = "{{business.id}}" 
+        const business_name = "{{business.name}}" 
+        const username =  "{{request.user.username}}"
+    </script>
+    <!-- <script type="text/babel" src="{% static 'chat/js/chat.js' %}" ></script> -->
+    <script src="{% static 'chat/js/chat.js' %}" ></script>
+
+{% endblock script %}
+
+{% block body %}  
+    {{business_id}}
+    <div id="body"> 
+        <textarea id="chat_text" cols="50" rows="20">
+
+        </textarea><br>
+        
+        <input id="input" type="text" size="20"><br>
+        <input id="submit" type="submit" value="Send">  
+    </div>   
+{% endblock body %}

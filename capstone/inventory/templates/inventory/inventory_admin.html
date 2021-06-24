@@ -1,0 +1,86 @@
+{% extends 'theSP/layout.html' %}
+{% load static %}
+
+{% block title %} {{business.name}} {% endblock title %}
+
+{% block script %}
+    <script> 
+        const business_name = "{{business.name}}" 
+
+        document.addEventListener('DOMContentLoaded', function() {            
+            const open_form_button = document.getElementById("open_form")
+            const close_form_button = document.getElementById("close_form")
+            const form = document.getElementById("new_inventory_form")
+            const body = document.getElementById("body")
+            
+            open_form_button.addEventListener('click', ()=> show_section("form"))
+            close_form_button.addEventListener('click', ()=> show_section("body"))
+            
+            // Controls whether to show add new inventory form or available inventory on the page
+            function show_section(section){
+                body.style.display = 'none'
+                form.style.display = 'none'
+                if(section === "form"){
+                    form.style.display = 'block'
+                }
+                else if(section === "body"){
+                    if(document.querySelector(".error_message")){
+                        window.location.href = window.location.href
+                    }else{
+                        body.style.display = 'block'  
+                    }
+                }
+            }
+        })
+    </script>
+    <script type="text/babel" src="{% static 'inventory/js/inventory_admin.js' %}" ></script>
+{% endblock script %}
+
+{% block body %}  
+    {% include 'business/layout.html' %}
+    {% if display == "form" %}
+        <div id="new_inventory_form" style="display:block">
+    {% else %}
+        <div id="new_inventory_form" style="display:none">
+    {% endif %}
+        {% if error_messages %}
+            {% for error in error_messages %}
+                <div class="error_message"><h2 class="text-danger text-center">{{error}}</h2></div>
+            {% endfor %}
+        {% endif %}
+        <div class="container-center-column">
+            <div class="form-box-large" style="z-index:30">
+                <h2>Add Inventory</h2>
+                <form action="{% url 'inventory:inventory_management' business_name=business.name %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            {{field.label_tag}}
+                            {{field}}
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="container-center-column" style="margin-top: 2em;"> 
+                        <button type="submit" class="btn btn-success btn-lg" style="color:white;width:30%">Add</button>
+                    </div>
+                </form>         
+            </div>
+            <div class="lone-btn">
+                <button class="btn btn-lg btn-danger" id="close_form" style="color: white">Close</button>
+            </div>   
+        </div>
+    </div>
+    {% if display == "form" %}
+        <div id="body" style="display:none">
+    {% else %}
+        <div id="body" style="display:block">
+    {% endif %}
+        <div class="container-center-row lone-btn">
+            <button class="btn btn-primary btn-lg" id="open_form">Add Inventory</button> 
+        </div>
+        
+        <div id="show_inventory">
+
+        </div>
+    </div>   
+{% endblock body %}

@@ -1,0 +1,20 @@
+{% extends 'theSP/layout.html' %}
+
+{% load static %}
+
+{% block title %} {{business.name}} {% endblock title %}
+{% block script %}
+    <script> 
+        const business_id = "{{business.id}}" 
+        const business_name = "{{business.name}}" 
+        const employee_id = "{{employee_id}}"
+    </script>
+    <!-- <script type="text/babel" src="{% static 'chat/js/business_chat.js' %}" ></script> -->
+    <script type="text/babel" src="{% static 'chat/js/admin_chat.js' %}" ></script>
+{% endblock script %}
+
+{% block body %}  
+    {% include 'business/layout.html' %}
+    <div id="body" class="container-fluid">   
+    </div>   
+{% endblock body %}

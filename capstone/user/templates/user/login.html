@@ -1,0 +1,47 @@
+
+{% extends 'theSP/layout.html' %}
+
+{% block title %} Login {% endblock title%}
+
+{% block body %}
+{% include 'theSP/gen_nav.html' %}
+
+    <main>     
+        <div class="container-fluid background-glass" style="height:100vh;">
+           
+            <!-- <div class='container'>
+                <div class="color"></div>
+                <div class="color"></div>
+                <div class="color"></div>
+            </div>
+            <div class='container'>
+                <div class="square-animate" style="--i:0"></div>
+                <div class="square-animate" style="--i:1"></div>
+                <div class="square-animate" style="--i:2"></div>
+                <div class="square-animate" style="--i:3"></div>
+                <div class="square-animate" style="--i:4"></div>
+                <div class="square-animate" style="--i:5"></div>
+            </div> -->
+            <div class="container-center-column" style="height: 100%;">
+                {% if error_message %}
+                    <div class="error_message"><h2 class="text-danger text-center">{{error_message}}</h2></div>
+                {% endif %}
+                <div class="form-box-small">
+                    <h2>Login</h2>
+                    <form action="{% url 'user:login' %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input autofocus class="form-control" type="text" name="username" placeholder="Username">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" type="password" name="password" placeholder="Password">
+                        </div>
+                        <input class="btn btn-primary" id="login_submit_button" type="submit" value="Login">
+                    </form>
+                    <p>Don't have an account? <a href="{% url 'user:register' %}">Sign Up</a></p>
+                    <p>Forgot your password? <a href="{% url 'user:reset_password_email' %}">Click Here</a></p>    
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock body %}

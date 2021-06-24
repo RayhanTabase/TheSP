@@ -1,0 +1,96 @@
+
+{% extends 'theSP/layout.html' %}
+
+{% block title %} Invoices {% endblock title%}
+
+{% block body %}
+    {% include 'business/layout.html' %}
+    <div class="container-fluid">
+        <form action="{% url 'invoice:invoices_index' business_name=business.name %}" method="GET">
+            <div>
+                <div class="container-center-row">
+                    <select name="category" class="custom-select custom-select-md mb-3">
+                        <option {% if category == "all" %} selected {% endif %}>All</option>
+                        <option {% if category == "paid" %} selected {% endif %}>Paid</option>
+                        <option {% if category == "unpaid" %} selected {% endif %}>Unpaid</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row container-center-row">
+                <div class="form-group col-md-5">
+                    <label for="date-from">From</label>
+                    <input class="form-control" type="date" name="date-from" id="date-from" value={{date_from}}>    
+                </div>
+                <div class="form-group col-md-5">
+                    <label for="date-to">To</label>
+                    <input class="form-control" type="date" name="date-to" id="date-to" value={{date_to}}>    
+                </div>
+            </div>
+
+            <div class="container-center-row form-group">
+                <input class="btn btn-outline-success"  type="submit" value="Filter">
+            </div>
+
+            <div class="container-center-row lone-btn">
+                <input id="csv-extract" name="extract_csv" value=0 hidden>
+            </div>
+        </form>
+    </div>
+    
+    <div class="container-center-row lone-btn">
+        <button class="btn btn-info" id="extract_data_csv">Extract to excel</button>
+    </div>
+
+    <div>
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">No#</th>
+                    <th scope="col">Customer name</th>
+                    <th scope="col" style="overflow: hidden;">Invoice total</th>
+                    <th scope="col">Paid</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice in  page_obj %}  
+                    <tr>
+                        <td><a href="{{invoice.get_absolute_url}}"> {{invoice.id}} </a></td>
+                        <td>{{invoice.customer_name}}</td>
+                        <td >{{invoice.total_cost}}</td>
+                        {% if invoice.paid %}
+                            <td style="color: green;">Paid</td>
+                        {% else %}
+                            <td style="color: red;">Unpaid</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table> 
+        
+        <div class="container-center-column pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a class="btn btn-primary" href="?page=1">&laquo; first</a>
+                    <a class="btn btn-primary" href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+        
+                {% if page_obj.has_next %}
+                    <a class="btn btn-primary" href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a class="btn btn-primary" href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    <script>   
+        document.querySelector("#extract_data_csv").addEventListener("click",()=>{
+            a = document.querySelector("#csv-extract")
+            a.value = 1
+            a.form.submit()
+        })
+    </script>
+
+{% endblock body %}

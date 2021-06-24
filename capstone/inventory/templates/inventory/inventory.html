@@ -1,0 +1,63 @@
+{% extends 'theSP/layout.html' %}
+{% load static %}
+{% block title %} {{inventory.name}} {% endblock title%}
+
+{% block script %}
+    <script> 
+        const business_id = "{{inventory.business.id}}" 
+        const business_name = "{{inventory.business.name}}" 
+        const username =  "{{request.user.username}}"
+      
+    </script>
+    {% if user.is_authenticated %}
+      <script type="text/babel" src="{% static 'chat/js/chat1.js' %}" ></script>
+    {% endif %}
+
+
+{% endblock script %}
+
+{% block body %}
+{% include 'theSP/gen_nav.html' %}
+
+    <main>
+        <div class="container-fluid">
+            <div class="inventory-page">
+                <div class="row">
+
+                    <div class ="col-md-6">
+                        <div class="image">
+                            {% if inventory.image %}
+                            <img  class="image" src={{inventory.image.url}} alt="{{inventory.name}}"/> 
+                            {% else %}     
+                            No Image
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class ="col-md-6">
+                        <div class="inventory-details">
+                            <h2 class ="name">{{inventory.name}}</h2>
+                            <p class="price">GHC {{inventory.price}}</p>  
+                            <p class ="business_phone">Call : +{{inventory.business.country_code}}-{{inventory.business.phone}}</p>
+                            <p class ="busines_name">Listed by
+                            <a href={{inventory.business.get_absolute_url}} style="text-transform: capitalize;">  : {{inventory.business.name}}  </a></p>
+                            <p class ="business_location" style="text-transform: capitalize;">Location : {{inventory.business.location}}</p> 
+                        </div>
+                    </div>
+                </div>
+                <div class="container-center-column"> 
+                    <p class ="description">{{inventory.description}}</p> 
+                </div>
+            </div>
+        </div>
+        {% if inventory.serviced_item %}
+            <div class="container-center-column">
+                <a href="{% url 'invoice:user_estimate' business_name=inventory.business.name %}" class="btn btn-lg btn-primary lone-btn">Get Estimate On Items</a>
+            </div>
+        {% endif %}
+    </main>
+    {% if user.is_authenticated %}
+        <div id="chatbox"> 
+
+        </div>  
+    {% endif %}
+{% endblock body %}

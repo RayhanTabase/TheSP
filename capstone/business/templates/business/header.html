@@ -1,0 +1,14 @@
+<div class="header">  
+    <div class="header-text">  
+        <a href="{{business.get_admin_url}}">
+            <h1>{{business.name}}</h1>
+        </a>              
+    </div>
+    <div class="header-image">
+        
+        {% if business.logo %}
+            <img src={{business.logo.url}} alt="{{business.name}}-logo">
+        {% endif %}   
+        
+    </div>  
+</div>

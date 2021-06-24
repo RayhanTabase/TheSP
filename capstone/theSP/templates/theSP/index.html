@@ -1,0 +1,56 @@
+
+{% extends 'theSP/layout.html' %}
+
+{% block title %} The SP {% endblock title%}
+
+{% block body %}
+    {% include 'theSP/gen_nav.html' %}
+
+    <div class="header">
+    </div>
+
+    <div class="search-box">
+        <form  action = "{% url 'inventory:index'%}" method ="GET" class="input-group" style="width: 60%;">
+            <input name="query" type="search" class="form-control rounded" placeholder="Search" aria-label="Search"
+              aria-describedby="search-addon" />
+            <button type="submit" class="btn btn-outline-primary">search</button>
+        </form>
+    </div>
+    
+    <div class="container-fluid">
+        <div class="index-inventory">
+            <div class="row">
+                <div class="col-md-12">
+                    {% if not inventory %}
+                    No Results
+                    {% endif %}
+                </div>
+                {% for item in inventory %}
+                    <div class="col-md-4">
+                        <div class="index-inventory-item" >
+                            <div class="name">
+                                <h2><a href = "{{item.get_absolute_url}}">{{item.name}}</a></h2>  
+                            </div>
+                            <div class="price">
+                                <p>GHC {{item.price}}</p>
+                            </div>
+                            <div class="image">
+                                {% if item.image %}
+                                    <img src={{item.image.url}} alt="{{item.name}}"/> 
+                                {% else %}
+                                    <div class="container container-center" style="color:white">
+                                        No Image
+                                    </div>
+                                {% endif %}
+                            </div> 
+                            <div class="footer">  
+                                    <h4><a href="{{item.business.get_absolute_url}}" >{{item.business.name}}</a></h4>
+                                    <p>{{item.business.location}}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock body %}
